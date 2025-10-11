@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>꿈의 그림 공방</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="game-viewport">
+        <div id="game-container">
+            <header class="title-screen">
+                <div class="title-container">
+                    <img src="assets/images/ui/cloud.png" alt="Cloud" class="title-cloud">
+                    <h1 class="game-title"><span>꿈의</span> <span>그림</span> <span>공방</span></h1>
+                </div>
+                <button id="start-button" class="start-button">게임 시작</button>
+            </header>
+        </div>
+        <div id="main-container" class="hidden">
+            <div class="status-bar">
+                <div class="status-badge level-badge-main">
+                    <div class="sign-legs"></div>
+                    <span class="badge-text">LV. 1</span>
+                    <div class="xp-bar-container">
+                        <div class="xp-bar-fill" style="width: 20%;"></div>
+                    </div>
+                </div>
+                <div class="status-group-center">
+                    <div class="status-badge fame-badge">
+                        <img src="assets/images/ui/icon/fame_Icon.png" alt="Fame" class="badge-icon">
+                        <span class="badge-text">10 / 100</span>
+                    </div>
+                    <div class="status-badge gold-badge">
+                        <img src="assets/images/ui/icon/money_Icon.png" alt="Gold" class="badge-icon">
+                        <span class="badge-text">120</span>
+                    </div>
+                </div>
+                <div class="status-right">
+                    <button class="settings-button">
+                        <img src="assets/images/ui/icon/setting_Icon.png" alt="Settings">
+                    </button>
+                    <button class="attendance-icon-button" title="출석부">
+                        <img src="assets/images/ui/icon/calender_Icon.png" alt="Attendance">
+                    </button>
+                </div>
+            </div>
+            <img src="assets/images/ui/table.png" alt="Workshop Table" class="atelier-table">
+            <button id="btn-upgrade" class="action-btn-individual" data-action="upgrade">
+                <img src="assets/images/ui/icon/upgrade_Icon.png" alt="강화" class="action-icon">
+                <span class="action-label">강화</span>
+            </button>
+            <button id="btn-shop" class="action-btn-individual" data-action="shop">
+                <img src="assets/images/ui/icon/shop_Icon.png" alt="상점" class="action-icon">
+                <span class="action-label">상점</span>
+            </button>
+            <button id="btn-decorate" class="action-btn-individual" data-action="decorate">
+                <img src="assets/images/ui/icon/pallet_Icon.png" alt="꾸미기" class="action-icon">
+                <span class="action-label">꾸미기</span>
+            </button>
+            <button id="btn-log" class="action-btn-individual" data-action="log">
+                <img src="assets/images/ui/icon/list_Icon.png" alt="기록" class="action-icon">
+                <span class="action-label">기록</span>
+            </button>
+        </div>
+    </div>
+    <script src="js/main.js"></script>
+</body>
+</html>

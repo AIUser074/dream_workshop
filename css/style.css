@@ -1,0 +1,431 @@
+@font-face {
+    font-family: 'GeumEunBoHwa';
+    src: url('../assets/font/나눔손글씨 금은보화.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Amsterdam';
+    src: url('../assets/font/나눔손글씨 암스테르담.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #000; /* 레터박스 색상 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#game-viewport {
+    position: relative;
+    width: 100vw;
+    height: calc(100vw * 16 / 9); /* 9:16 비율 유지 */
+    max-height: 100vh;
+    max-width: calc(100vh * 9 / 16);
+    overflow: hidden;
+    margin: auto;
+}
+
+#game-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    background-image: url('../assets/images/ui/Title_bg.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.title-screen {
+    text-align: center;
+    color: #4a4a4a; /* 기존 white에서 짙은 회색으로 변경하여 가독성 확보 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.title-container {
+    position: relative;
+    display: block;
+    margin-top: -6%; /* 타이틀 크기 축소에 맞춰 위치 조정 */
+    transform: translateY(0); /* 초기 위치를 0으로 명시하여 점프 방지 */
+    animation: title-float 6s ease-in-out 1.6s infinite alternate; /* 타이틀과 구름을 함께 부드럽게 이동 */
+    will-change: transform;
+}
+
+.title-cloud {
+    position: absolute;
+    top: 40%; /* 중앙으로 살짝 내려서 안정감 부여 */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 140%; /* 타이틀 크기 축소에 맞춰 구름 크기 조정 */
+    max-width: none; /* 고정 뷰포트에서는 불필요 */
+    z-index: 1;
+    opacity: 0.9;
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.12));
+    pointer-events: none; /* 구름이 버튼 상호작용을 가로막지 않도록 */
+    animation: cloud-float 10s ease-in-out 1.6s infinite alternate; /* 더 동적인 플로팅 */
+}
+
+.game-title {
+    position: relative;
+    z-index: 2; /* 구름 위에 표시 */
+    font-family: 'GeumEunBoHwa', cursive; /* 금은보화 폰트 우선 적용 */
+    /* font-size는 JS에서 동적으로 설정하므로 rem 단위 제거 */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25); /* 가독성을 위해 그림자 강화 */
+    animation: slide-up 1.5s ease-out forwards;
+    opacity: 0;
+    transform: translateY(50px);
+    font-weight: bold; /* 브라우저 자체 볼드 처리 */
+    letter-spacing: 0; /* 자간을 줄여 텍스트 너비 축소 */
+    -webkit-text-stroke: 0; /* 색상이 다양해지므로 외곽선은 제거 */
+    white-space: nowrap; /* 타이틀 줄바꿈 방지 */
+}
+
+.game-title span:nth-child(1) {
+    color: #ffb3ba; /* 파스텔 핑크 */
+}
+.game-title span:nth-child(2) {
+    color: #ffdfba; /* 파스텔 오렌지 */
+}
+.game-title span:nth-child(3) {
+    color: #baffc9; /* 파스텔 민트 */
+}
+
+.start-button {
+    font-family: 'GeumEunBoHwa', cursive; /* 금은보화 폰트로 변경 */
+    /* font-size는 JS에서 동적으로 설정하므로 rem 단위 제거 */
+    padding: 2.5% 5%; /* % 단위로 변경 */
+    border: none;
+    border-radius: 50px; /* 고정 크기가 더 예쁠 수 있음 */
+    background-color: #ffffff;
+    color: #e57373; /* 배경과 어울리는 톤으로 살짝 변경 */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 5%; /* % 단위로 변경 */
+    animation: fade-in 1s 1s ease-in forwards;
+    opacity: 0;
+    font-weight: bold; /* 폰트가 얇으므로 볼드 처리 */
+    letter-spacing: 0.5px;
+    position: relative;
+    z-index: 3; /* 구름 위로 */
+}
+
+.start-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+@keyframes slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes cloud-float {
+    0%   { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+    25%  { transform: translate(calc(-50% + 0.8%), -49.6%) scale(1.008) rotate(0.12deg); }
+    50%  { transform: translate(calc(-50% + 1.2%), -49.0%) scale(1.012) rotate(0.2deg); }
+    75%  { transform: translate(calc(-50% - 0.6%), -49.4%) scale(1.006) rotate(0.1deg); }
+    100% { transform: translate(-50%, -48.8%) scale(1) rotate(0deg); }
+}
+
+@keyframes title-float {
+    from { transform: translateY(0); }
+    to { transform: translateY(1.2%); }
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ===== Pastel Theme Variables & Utilities ===== */
+:root {
+    --pastel-pink: #ffb3ba;
+    --pastel-orange: #ffdfba;
+    --pastel-mint: #baffc9;
+    --pastel-blue: #a0e7e5;
+    --ink: #4a4a4a;
+    --glass-bg: rgba(255, 255, 255, 0.55);
+    --glass-stroke: rgba(255, 255, 255, 0.9);
+    --shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+    /* solid panel tones for opaque badges */
+    --panel-bg: #d8a187; /* warm wood-like */
+    --panel-stroke: #8f5a49; /* darker edge */
+}
+
+.glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: var(--shadow);
+}
+
+.badge {
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.6);
+}
+
+.fade-slide-in {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeSlideIn 600ms ease-out forwards;
+}
+
+@keyframes fadeSlideIn {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Main Workshop UI */
+#main-container {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    background-image: url('../assets/images/ui/main_bg.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0;
+    animation: mainEnter 600ms ease-out 100ms forwards;
+    font-family: 'Amsterdam', 'GeumEunBoHwa', cursive; /* 메인 UI 전용 폰트 */
+}
+
+@keyframes mainEnter {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 상태 바 - 분리된 배지 스타일 */
+.status-bar {
+    position: absolute;
+    top: env(safe-area-inset-top, 0px);
+    left: 0;
+    right: 0;
+    z-index: 20;
+    display: flex;
+    justify-content: space-between; /* 양 끝 정렬로 변경 */
+    align-items: flex-start; /* 상단 기준 정렬 */
+    gap: clamp(6px, 1.5vw, 16px);
+    padding: clamp(4px, 1vw, 8px) clamp(8px, 3vw, 16px);
+    animation: fadeSlideIn 700ms ease-out 200ms forwards;
+    box-sizing: border-box;
+}
+
+.status-group-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: clamp(6px, 1.5vw, 16px);
+    flex-wrap: wrap;
+}
+
+/* 왼쪽 상단 메인 레벨 배지 스타일 */
+.level-badge-main {
+    position: relative; /* 다리 기준점 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px; /* 레벨 텍스트와 경험치 바 사이 간격 */
+    background: #8a9aab !important; /* 색상 강제 적용 */
+    border: 2px solid #5d6b7a !important; /* 테두리 강제 적용 */
+    padding: clamp(6px, 1vw, 8px) clamp(16px, 2.5vw, 22px);
+    transform: translateY(0) !important; /* 처음부터 내려와 있도록 위치 고정 */
+    box-shadow: 0 8px 12px rgba(0,0,0,0.22);
+    transition: none !important; /* 호버 효과 제거 */
+}
+
+.sign-legs {
+    position: absolute;
+    bottom: 95%;
+    left: 15%;
+    right: 15%;
+    height: 10px;
+    background: transparent;
+    border-left: 4px solid #5d6b7a;
+    border-right: 4px solid #5d6b7a;
+}
+
+.level-badge-main .badge-text {
+    color: #fff;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+    padding: 0; /* 불필요한 패딩 제거로 중앙 정렬 보정 */
+    padding-left: clamp(4px, 1vw, 8px); /* 왼쪽 여백 살짝 부여 */
+}
+
+.xp-bar-container {
+    width: calc(100% - clamp(4px, 1vw, 8px));
+    height: 10px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    overflow: hidden;
+    margin-left: clamp(4px, 1vw, 8px);
+}
+
+.xp-bar-fill {
+    width: 20%;
+    height: 100%;
+    background-color: #a8d5e2;
+}
+
+
+.settings-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.settings-button img {
+    width: clamp(28px, 2.5rem, 40px);
+    height: auto;
+    transition: transform 0.2s ease;
+}
+
+.settings-button:hover img {
+    transform: rotate(45deg);
+}
+
+
+.status-badge {
+    display: flex;
+    align-items: center;
+    gap: clamp(4px, 1vw, 8px);
+    padding: clamp(4px, 0.8vw, 6px) clamp(10px, 2vw, 14px);
+    padding-left: clamp(4px, 1vw, 8px); /* 좌측 패딩 추가 */
+    background: var(--panel-bg); /* 불투명 패널 */
+    border: 2px solid var(--panel-stroke);
+    border-radius: 6px; /* 각진 느낌 */
+    box-shadow:
+        0 6px 10px rgba(0,0,0,0.18), /* drop */
+        inset 0 1px 0 rgba(255,255,255,0.35), /* top highlight */
+        inset 0 -2px 3px rgba(0,0,0,0.08); /* inner shade */
+    transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.status-badge:hover {
+    transform: translateY(-1px);
+    box-shadow:
+        0 8px 12px rgba(0,0,0,0.2),
+        inset 0 1px 0 rgba(255,255,255,0.4),
+        inset 0 -2px 3px rgba(0,0,0,0.1);
+}
+
+.badge-icon {
+    width: clamp(18px, 1.8rem, 32px);
+    height: clamp(18px, 1.8rem, 32px);
+    object-fit: contain;
+    filter: none; /* 불투명 스타일에 맞춰 하이라이트 제거 */
+}
+
+.badge-text {
+    font-family: 'Amsterdam', 'GeumEunBoHwa', cursive;
+    font-weight: 700; /* 선명한 볼드 */
+    font-size: clamp(18px, 1.8rem, 22px);
+    color: #2c2320; /* 패널 위에서 잘 보이는 잉크 색 */
+    white-space: nowrap;
+}
+
+/* 개별 배지 색상 강조 - day-badge와 level-badge 제거 */
+.fame-badge { border-color: var(--panel-stroke); }
+.gold-badge { border-color: var(--panel-stroke); }
+
+.atelier-table {
+    position: absolute;
+    bottom: -17%; /* 살짝 더 아래로 내림 */
+    left: 0;
+    width: 100%;
+    pointer-events: none; /* 테이블이 다른 UI 요소 클릭을 막지 않도록 */
+}
+
+.status-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.attendance-icon-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.attendance-icon-button img {
+    width: clamp(28px, 2.5rem, 40px);
+    height: auto;
+    transition: transform 0.2s ease;
+}
+
+.attendance-icon-button:hover img {
+    transform: translateY(1px);
+}
+
+/* 개별 하단 액션 버튼 */
+.action-btn-individual {
+    position: absolute;
+    z-index: 15;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: clamp(70px, 16vw, 88px); /* 크기 소폭 증가 */
+    height: clamp(70px, 16vw, 88px); /* 크기 소폭 증가 */
+    background: #fdf6e3; /* 아이보리 */
+    border: 3px solid #654321; /* 짙은 갈색 */
+    border-radius: 12px;
+    box-shadow: 0 6px 0 0 #654321; /* 입체감을 위한 두꺼운 그림자 */
+    cursor: pointer;
+    transition: all 0.1s ease-out;
+}
+
+.action-btn-individual:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 0 #654321;
+}
+
+#btn-upgrade { bottom: 3%; left: 5%; }
+#btn-shop { bottom: 3%; left: 28%; }
+#btn-decorate { bottom: 3%; right: 28%; }
+#btn-log { bottom: 3%; right: 5%; }
+
+.action-icon {
+    width: clamp(30px, 5.5vw, 40px); /* 아이콘 크기 소폭 증가 */
+    height: clamp(30px, 5.5vw, 40px); /* 아이콘 크기 소폭 증가 */
+    object-fit: contain;
+}
+
+.action-label {
+    font-family: 'Amsterdam', 'GeumEunBoHwa', cursive;
+    font-weight: 700;
+    font-size: clamp(15px, 2.8vw, 17px); /* 폰트 크기 소폭 증가 */
+    color: #654321;
+}
