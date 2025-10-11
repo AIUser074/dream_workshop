@@ -379,7 +379,7 @@ body, html {
 }
 
 .attendance-icon-button img {
-    width: clamp(28px, 2.5rem, 40px);
+    width: clamp(36px, 4rem, 50px);
     height: auto;
     transition: transform 0.2s ease;
 }
