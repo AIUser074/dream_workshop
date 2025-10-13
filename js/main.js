@@ -59,13 +59,13 @@ const Game = {
         const viewport = document.getElementById('game-viewport');
         if (!viewport) return;
 
-        const viewportWidth = viewport.clientWidth;
+        const viewportWidth = viewport.clientWidth; // 가로 기준 스케일
         const baseFontSize = viewportWidth * 0.055; 
         document.documentElement.style.fontSize = `${baseFontSize}px`;
 
         const titleElement = document.querySelector('.game-title');
         if (titleElement) {
-            titleElement.style.fontSize = '4.0rem'; /* 전체적인 크기 축소 */
+            titleElement.style.fontSize = '4.0rem';
         }
 
         const buttonElement = document.querySelector('.start-button');

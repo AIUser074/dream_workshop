@@ -200,7 +200,7 @@ const DrawUIManager = {
                 <div class="panel-header">붓 크기</div>
                 <div class="panel-grid brush-grid">
                     ${drawConfig.brushSizes.map(s => `
-                        <button class="size-chip" data-size="${s}" aria-label="${s}px">
+                        <button class="size-chip ${this.state.brushSize === s ? 'active' : ''}" data-size="${s}" aria-label="${s}px">
                             <span class="size-dot" style="width:${Math.max(6, s)}px;height:${Math.max(6, s)}px;background:${this.state.currentColor}"></span>
                         </button>
                     `).join('')}
@@ -399,18 +399,19 @@ const PaintEngine = {
 
     drawPoint(x, y, start = false) {
         const ctx = this.ctx;
+        const currentSize = this.eraserActive ? drawConfig.eraserSizes[0] : this.size;
         ctx.save();
         if (this.eraserActive) {
             ctx.globalCompositeOperation = 'destination-out';
             ctx.fillStyle = 'rgba(0,0,0,1)';
             ctx.beginPath();
-            ctx.arc(x, y, this.size / 2, 0, Math.PI * 2);
+            ctx.arc(x, y, currentSize / 2, 0, Math.PI * 2);
             ctx.fill();
         } else {
             ctx.globalCompositeOperation = 'source-over';
             ctx.fillStyle = this.color;
             ctx.beginPath();
-            ctx.arc(x, y, this.size / 2, 0, Math.PI * 2);
+            ctx.arc(x, y, currentSize / 2, 0, Math.PI * 2);
             ctx.fill();
         }
         ctx.restore();
@@ -418,6 +419,7 @@ const PaintEngine = {
 
     drawLine(x1, y1, x2, y2) {
         const ctx = this.ctx;
+        const currentSize = this.eraserActive ? drawConfig.eraserSizes[0] : this.size;
         ctx.save();
         if (this.eraserActive) {
             ctx.globalCompositeOperation = 'destination-out';
@@ -426,7 +428,7 @@ const PaintEngine = {
             ctx.globalCompositeOperation = 'source-over';
             ctx.strokeStyle = this.color;
         }
-        ctx.lineWidth = this.size;
+        ctx.lineWidth = currentSize;
         ctx.lineCap = this.strokeCap;
         ctx.lineJoin = this.strokeJoin;
         ctx.beginPath();

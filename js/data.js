@@ -32,5 +32,5 @@ const drawConfig = {
     colors: ['#000000', '#ff0000', '#0057ff', '#00a86b', '#ffd166', '#ffffff'],
     brushSizes: [2, 4, 8, 12], // px 단위 (강화로 확장)
     useSlider: false, // 강화로 true 전환
-    eraserSizes: [8, 16, 24]
+    eraserSizes: [24, 16, 8] /* 굵은 순서로 변경 */
 };

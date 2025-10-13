@@ -25,10 +25,9 @@ body, html {
 
 #game-viewport {
     position: relative;
-    width: 100vw;
-    height: calc(100vw * 16 / 9); /* 9:16 비율 유지 */
-    max-height: 100vh;
-    max-width: calc(100vh * 9 / 16);
+    width: 100vw; /* 가로 고정: 화면 가로에 맞춤 */
+    height: 100vh; /* 기본 폴백 */
+    height: 100dvh; /* 모바일 주소창 변화 대응, 레터박스 제거 */
     overflow: hidden;
     margin: auto;
 }
@@ -367,7 +366,7 @@ body, html {
 
 .atelier-table {
     position: absolute;
-    bottom: -17%; /* 살짝 더 아래로 내림 */
+    bottom: -12%; /* 살짝 위로 올림 (-17% -> -14%) */
     left: 0;
     width: 100%;
     pointer-events: none; /* 테이블이 다른 UI 요소 클릭을 막지 않도록 */
@@ -422,10 +421,10 @@ body, html {
     box-shadow: 0 2px 0 0 #654321;
 }
 
-#btn-upgrade { bottom: 3%; left: 5%; }
-#btn-shop { bottom: 3%; left: 28%; }
-#btn-decorate { bottom: 3%; right: 28%; }
-#btn-log { bottom: 3%; right: 5%; }
+#btn-upgrade { bottom: 9%; left: 5%; } /* 3% -> 5% */
+#btn-shop { bottom: 9%; left: 28%; }
+#btn-decorate { bottom: 9%; right: 28%; }
+#btn-log { bottom: 9%; right: 5%; }
 
 .action-icon {
     width: clamp(30px, 5.5vw, 40px); /* 아이콘 크기 소폭 증가 */
@@ -443,7 +442,7 @@ body, html {
 /* NPC & Dialog Box - 동적 생성 대응 */
 .npc-wrapper {
     position: absolute;
-    bottom: 10%;
+    bottom: 12%; /* 10% -> 12% */
     left: 50%;
     transform: translateX(-50%);
     width: clamp(180px, 35vw, 240px); /* data.js의 baseScale로 덮어쓰여짐 */
@@ -516,7 +515,7 @@ body, html {
     margin: 0;
     font-family: 'Amsterdam', 'GeumEunBoHwa', cursive;
     font-weight: 700;
-    font-size: clamp(14px, 2.5vw, 16px);
+    font-size: clamp(16px, 2.8vw, 20px); /* 폰트 크기 증가 */
     color: #654321;
 }
 
@@ -640,12 +639,12 @@ body, html {
 }
 
 .drawing-table-top {
-    top: -30%; /* 더 위로 이동 */
+    top: -18%; /* 더 위로 이동 */
     transform: rotate(180deg); /* 위쪽 테이블은 뒤집어서 사용 */
 }
 
 .drawing-table-bottom {
-    bottom: -30%; /* 더 아래로 이동 */
+    bottom: calc(env(safe-area-inset-bottom, 0px) - 18%); /* 테이블 더 위로 (기존 -18%) */
 }
 
 .canvas-wrapper {
@@ -674,14 +673,14 @@ body, html {
     width: 100%;
     height: 100%;
     pointer-events: auto; /* 입력 허용 */
-    clip-path: inset(8.3% 5% 17.5% 5% round 10px);
+    clip-path: inset(15% 5% 22.7% 5% round 10px);
     touch-action: none; /* 모바일 터치 스크롤 등 기본 동작 비활성화 */
 }
 
 /* ===== 그림 그리기 도구 UI 스타일 ===== */
 .drawing-tools-wrapper {
     position: absolute;
-    bottom: -0.5%; /* 하단 테이블 위에 위치하도록 조정 (살짝 내림) */
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 6%); /* 하단 UI 더 위로 (기존 +6%) */
     left: 0; /* 전체 폭 사용 */
     transform: none; /* 중앙 변환 해제 */
     width: 100%; /* 화면 가로 전체 사용 */
@@ -817,6 +816,16 @@ body, html {
     display: flex;
     justify-content: center;
     align-items: center;
+    transition: background-color 0.2s; /* 부드러운 전환 효과 */
+}
+
+.size-chip:hover {
+    background: #e0d8c7;
+}
+
+.size-chip.active {
+    background: #a8d5e2; /* 활성화 시 배경색 변경 */
+    border-color: #5d6b7a;
 }
 
 /* 실제 붓 크기를 표현하는 점 */
@@ -887,7 +896,7 @@ body, html {
 /* ===== 그림 그리기 상단 UI 스타일 ===== */
 .drawing-header {
     position: absolute;
-    top: 0.5%;
+    top: calc(env(safe-area-inset-top, 0px) + 5%); /* 아래로 내림 (기존 +0.8%) */
     left: 3%;
     right: 3%;
     z-index: 55;
@@ -905,6 +914,8 @@ body, html {
     padding: 1.2vw 2vw; /* 패딩 확대 (두껍게) */
     box-shadow: 0 4px 6px rgba(0,0,0,0.15);
     box-sizing: border-box;
+    position: absolute;
+    z-index: 55;
 }
 
 .request-content {
@@ -954,8 +965,8 @@ body, html {
 }
 
 .customer-portrait {
-    width: 8vw; /* 크기 추가 확대 */
-    height: 8vw; /* 크기 추가 확대 */
+    width: 10vw; /* 크기 추가 확대 */
+    height: 10vw; /* 크기 추가 확대 */
     border-radius: 1.8vw; /* 두께에 맞춰 반경 확대 */
     border: 2px solid #654321;
 }
@@ -971,7 +982,7 @@ body, html {
 /* 하단 바: 두껍고 크게 */
 .drawing-tools-wrapper {
     position: absolute;
-    bottom: -0.5%;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 6.5%); /* 하단 UI 더 위로 (기존 +6%) */
     left: 0;
     transform: none;
     width: 100%;
