@@ -674,8 +674,8 @@ body, html {
     width: 100%;
     height: 100%;
     pointer-events: auto; /* 입력 허용 */
-    /* ▼▼▼ 이 부분을 추가하고 값을 수정하세요 ▼▼▼ */
     clip-path: inset(8.3% 5% 17.5% 5% round 10px);
+    touch-action: none; /* 모바일 터치 스크롤 등 기본 동작 비활성화 */
 }
 
 /* ===== 그림 그리기 도구 UI 스타일 ===== */
