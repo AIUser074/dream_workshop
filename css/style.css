@@ -52,6 +52,12 @@ body, html {
     display: flex;
     flex-direction: column;
     align-items: center;
+    transition: opacity 0.5s ease-out; /* 페이드아웃 효과를 위한 transition 추가 */
+}
+
+.title-screen.fade-out {
+    opacity: 0;
+    pointer-events: none;
 }
 
 .title-container {
@@ -103,29 +109,30 @@ body, html {
 }
 
 .start-button {
-    font-family: 'GeumEunBoHwa', cursive; /* 금은보화 폰트로 변경 */
-    /* font-size는 JS에서 동적으로 설정하므로 rem 단위 제거 */
-    padding: 2.5% 5%; /* % 단위로 변경 */
+    font-family: 'GeumEunBoHwa', cursive; /* 폰트 통일 */
+    padding: 1.8% 4%; /* 패딩을 줄여 크기 축소 */
     border: none;
-    border-radius: 50px; /* 고정 크기가 더 예쁠 수 있음 */
+    border-bottom: 5px solid #c06c6c; /* 입체감을 위한 하단 테두리 */
+    border-radius: 50px;
     background-color: #ffffff;
-    color: #e57373; /* 배경과 어울리는 톤으로 살짝 변경 */
+    color: #e57373;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     cursor: pointer;
-    transition: all 0.3s ease;
-    margin-top: 5%; /* % 단위로 변경 */
+    transition: all 0.15s ease-out; /* 전환 속도 조절 */
+    margin-top: 5%;
     animation: fade-in 1s 1s ease-in forwards;
     opacity: 0;
-    font-weight: bold; /* 폰트가 얇으므로 볼드 처리 */
+    font-weight: bold;
     letter-spacing: 0.5px;
     position: relative;
-    z-index: 3; /* 구름 위로 */
+    z-index: 3;
 }
 
 .start-button:hover {
-    transform: translateY(-3px);
+    transform: translateY(-2px); /* 호버 시 미세하게 이동 */
     box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
+
 
 @keyframes slide-up {
     from {
@@ -212,15 +219,17 @@ body, html {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    opacity: 0;
-    animation: mainEnter 600ms ease-out 100ms forwards;
+    /* opacity와 animation 제거 */
     font-family: 'Amsterdam', 'GeumEunBoHwa', cursive; /* 메인 UI 전용 폰트 */
 }
 
+/* mainEnter 키프레임 제거 또는 주석 처리 */
+/*
 @keyframes mainEnter {
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
 }
+*/
 
 /* 상태 바 - 분리된 배지 스타일 */
 .status-bar {
@@ -362,6 +371,7 @@ body, html {
     left: 0;
     width: 100%;
     pointer-events: none; /* 테이블이 다른 UI 요소 클릭을 막지 않도록 */
+    z-index: 12; /* NPC보다 위에 오도록 설정 */
 }
 
 .status-right {
@@ -428,4 +438,533 @@ body, html {
     font-weight: 700;
     font-size: clamp(15px, 2.8vw, 17px); /* 폰트 크기 소폭 증가 */
     color: #654321;
+}
+
+/* NPC & Dialog Box - 동적 생성 대응 */
+.npc-wrapper {
+    position: absolute;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: clamp(180px, 35vw, 240px); /* data.js의 baseScale로 덮어쓰여짐 */
+    z-index: 5; /* 테이블 뒤에 오도록 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    visibility: hidden; /* 초기에는 숨김 */
+}
+
+.npc-wrapper img {
+    width: 100%;
+    transform: translateY(100%);
+    opacity: 0;
+    transform-origin: bottom center; /* 스쿼시/스트레치 기준 */
+}
+
+/* Entrance animation - forwards 제거 */
+.npc-wrapper.animate-enter img {
+    animation: npc-pop-up 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.5s;
+}
+
+/* Idle animation for all NPCs */
+.npc-wrapper.npc-idle img {
+    /* 애니메이션 시작 전 초기 상태를 등장 후 상태와 동일하게 설정 */
+    transform: translateY(0);
+    opacity: 1;
+    animation: npc-idle 2.8s ease-in-out infinite alternate;
+}
+
+@keyframes npc-idle {
+    0%   { transform: translateY(0) scaleX(1.00) scaleY(1.00); }
+    50%  { transform: translateY(0) scaleX(0.985) scaleY(1.015); }
+    100% { transform: translateY(0) scaleX(1.01) scaleY(0.99); }
+}
+
+.dialog-box {
+    position: absolute;
+    background: #fff;
+    border: 3px solid #654321;
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    opacity: 0;
+    visibility: hidden;
+    transform: none !important; /* JS에서 transform을 직접 제어하므로 초기화 */
+}
+
+.dialog-box::after, .dialog-box::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    border-style: solid;
+}
+.dialog-box::after { /* a little bigger for border */
+    bottom: -13px;
+    border-width: 13px 13px 0 13px;
+    border-color: #654321 transparent transparent transparent;
+}
+.dialog-box::before {
+    bottom: -10px;
+    border-width: 11px 11px 0 11px; /* 테두리를 완전히 덮도록 크기 살짝 키움 */
+    border-color: #fff transparent transparent transparent;
+    z-index: 1;
+}
+
+.dialog-text {
+    margin: 0;
+    font-family: 'Amsterdam', 'GeumEunBoHwa', cursive;
+    font-weight: 700;
+    font-size: clamp(14px, 2.5vw, 16px);
+    color: #654321;
+}
+
+.dialog-text span {
+    display: none; /* 레이아웃에서 제외하여 커서가 끝 글자 옆에 위치 */
+}
+.dialog-text span.visible {
+    display: inline;
+}
+
+/* 타자기 커서 효과 */
+.dialog-text.typing::after {
+    content: '|';
+    animation: blink 1s step-end infinite;
+    margin-left: 2px;
+    font-weight: 100;
+}
+
+@keyframes blink {
+    from, to { color: transparent; }
+    50% { color: #654321; }
+}
+
+/* Animations */
+.animate-enter { visibility: visible !important; }
+.dialog-box.animate-enter { animation: dialog-fade-in 0.4s ease-out 1.2s forwards; }
+
+@keyframes npc-pop-up {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes dialog-fade-in {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* '다음' 화살표 스타일 */
+.next-arrow {
+    position: absolute;
+    bottom: 8px;
+    right: 12px;
+    font-size: clamp(12px, 2vw, 14px);
+    color: #654321;
+    visibility: hidden; /* 평소에는 숨김 */
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.next-arrow.visible {
+    visibility: visible;
+    opacity: 1;
+    animation: bounce-arrow 0.8s ease-in-out infinite;
+}
+
+@keyframes bounce-arrow {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-4px);
+    }
+}
+
+/* ===== 화면 전환 스타일 (수정) ===== */
+.screen {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    /* opacity와 transform을 함께 transition하도록 설정 */
+    transition: transform 0.6s cubic-bezier(0.45, 0, 0.55, 1), opacity 0.5s ease-out;
+}
+
+/* 슬라이드 효과를 위한 기본 상태 */
+.screen.screen-slide {
+    transform: translateX(100%);
+    opacity: 1; /* 페이드 효과 방지를 위해 명시적으로 불투명하게 설정 */
+}
+
+/* 페이드 효과를 위한 기본 상태 */
+.screen.screen-fade {
+    transform: translateX(0); /* 슬라이드되지 않도록 위치 고정 */
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* 화면이 활성화되었을 때의 상태 */
+.screen.active-screen {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* 슬라이드로 퇴장할 때의 상태 */
+.screen.exit-left {
+    transform: translateX(0); /* 왼쪽으로 밀려나가지 않고 제자리에 머묾 */
+    opacity: 1; /* 퇴장 시 페이드아웃 되지 않도록 불투명 상태 유지 */
+}
+
+/* ===== 그림 그리기 모드 UI 스타일 (수정) ===== */
+#drawing-mode-container {
+    /* position, inset 등은 .screen 에서 상속받으므로 제거 가능 */
+    background-image: url('../assets/images/ui/draw_bg.png');
+    background-size: cover;
+    background-position: center;
+    z-index: 50;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; /* 내부 요소가 넘치지 않도록 */
+}
+
+.drawing-table-top,
+.drawing-table-bottom {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    z-index: 52;
+    pointer-events: none; /* 테이블이 마우스/터치 이벤트를 가로채지 않도록 설정 */
+}
+
+.drawing-table-top {
+    top: -30%; /* 더 위로 이동 */
+    transform: rotate(180deg); /* 위쪽 테이블은 뒤집어서 사용 */
+}
+
+.drawing-table-bottom {
+    bottom: -30%; /* 더 아래로 이동 */
+}
+
+.canvas-wrapper {
+    position: relative;
+    width: 110%; /* 캔버스 너비 매우 확대 */
+    height: 110%; /* 캔버스 높이도 확대 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 51;
+    top: 5%; /* 캔버스 살짝 내리기 */
+}
+
+.drawing-canvas-img {
+    width: 110%;    /* 캔버스 이미지 크기 매우 확대 */
+    height: auto;
+    max-height: 110%; /* 최대 높이도 크게 허용 */
+    object-fit: contain;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2));
+}
+
+/* 드로잉 캔버스 */
+#paint-canvas {
+    position: absolute;
+    inset: 0; /* wrapper 가이드 안에서 가득 채움 (이미지와 동일 비율) */
+    width: 100%;
+    height: 100%;
+    pointer-events: auto; /* 입력 허용 */
+    /* ▼▼▼ 이 부분을 추가하고 값을 수정하세요 ▼▼▼ */
+    clip-path: inset(8.3% 5% 17.5% 5% round 10px);
+}
+
+/* ===== 그림 그리기 도구 UI 스타일 ===== */
+.drawing-tools-wrapper {
+    position: absolute;
+    bottom: -0.5%; /* 하단 테이블 위에 위치하도록 조정 (살짝 내림) */
+    left: 0; /* 전체 폭 사용 */
+    transform: none; /* 중앙 변환 해제 */
+    width: 100%; /* 화면 가로 전체 사용 */
+    z-index: 53; /* 테이블 위에 오도록 */
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* 좌측부터 배치 시작 */
+    gap: 24px; /* 간격 조금 증가 */
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 12px 5%; /* 좌우 패딩으로 가장자리 여백 확보 */
+    box-sizing: border-box; /* 패딩 포함 너비 계산 */
+    border-radius: 0; /* 전체 폭 바에서 라운드 제거 */
+}
+
+.color-palette {
+    display: flex;
+    gap: 10px;
+}
+
+.color-btn {
+    width: clamp(32px, 4.5vw, 40px); /* 크기 축소 */
+    height: clamp(32px, 4.5vw, 40px); /* 크기 축소 */
+    border-radius: 50%;
+    border: 2px solid transparent; /* 테두리 두께 유지 */
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.color-btn:hover {
+    transform: scale(1.1);
+}
+
+.color-btn.active {
+    border-color: #654321; /* 다른 버튼과 동일한 갈색 테두리 */
+    box-shadow: none; /* 빛나는 효과 제거 */
+    transform: scale(1.1); /* 선택되었음을 나타내는 확대 효과 */
+}
+
+.tool-buttons {
+    display: flex;
+    align-items: center;
+    gap: 18px; /* 좌측 그룹 간격 늘림 */
+    flex: 1; /* 우측 끝까지 공간 차지 */
+}
+
+/* '모두 지우기' 버튼부터 우측으로 밀기 */
+#btn-reset-canvas {
+    margin-left: auto;
+}
+
+.tool-btn {
+    background: #fdf6e3;
+    border: 2px solid #654321; /* 테두리 두께 축소 */
+    border-radius: 14px; /* 모서리 둥글기 축소 */
+    width: clamp(44px, 6.5vw, 55px); /* 크기 축소 */
+    height: clamp(44px, 6.5vw, 55px); /* 크기 축소 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tool-btn:hover {
+    background-color: #fff;
+}
+
+.tool-btn img {
+    width: 150%; /* 아이콘 크기 증가 */
+    height: 150%; /* 아이콘 크기 증가 */
+    object-fit: contain;
+}
+
+/* ===== 패널/오버레이/모달 ===== */
+.draw-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.2);
+    z-index: 100;
+}
+.draw-overlay.hidden { display: none; }
+
+.draw-panel {
+    position: fixed;
+    top: 18%;
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 260px;
+    max-width: 70vw;
+    background: #fff;
+    border: 2px solid #654321;
+    border-radius: 12px;
+    padding: 12px 14px;
+    z-index: 101;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+}
+.draw-panel.hidden { display: none; }
+
+.panel-header {
+    font-family: 'Amsterdam', 'GeumEunBoHwa', cursive;
+    font-weight: 700;
+    color: #654321;
+    margin-bottom: 10px;
+}
+
+.panel-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(28px, 1fr));
+    gap: 8px;
+}
+
+/* 붓 크기 전용 그리드 간격 보정 */
+.brush-grid {
+    grid-template-columns: repeat(6, 1fr);
+}
+
+.color-swatch {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #654321;
+    cursor: pointer;
+}
+
+.size-chip {
+    padding: 6px 10px;
+    background: #fdf6e3;
+    border: 2px solid #654321;
+    border-radius: 10px;
+    font-family: 'Amsterdam', 'GeumEunBoHwa', cursive;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 실제 붓 크기를 표현하는 점 */
+.size-dot {
+    display: inline-block;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.15);
+}
+
+.slider-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.slider-row .size-label {
+    font-family: 'Amsterdam', 'GeumEunBoHwa', cursive;
+    font-weight: 700;
+    color: #654321;
+}
+
+.draw-modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 102;
+}
+.draw-modal.hidden { display: none; }
+
+.modal-card {
+    background: #fff;
+    border: 2px solid #654321;
+    border-radius: 12px;
+    padding: 16px 20px;
+    min-width: 260px;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+}
+.modal-message {
+    font-family: 'Amsterdam', 'GeumEunBoHwa', cursive;
+    font-weight: 700;
+    color: #654321;
+    margin-bottom: 12px;
+}
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+.modal-btn {
+    background: #fdf6e3;
+    border: 2px solid #654321;
+    border-radius: 10px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-family: 'Amsterdam', 'GeumEunBoHwa', cursive; /* 폰트 적용 */
+    font-weight: 700; /* 폰트 두께 적용 */
+    color: #654321; /* 텍스트 색상 적용 */
+}
+.modal-btn.confirm { background: #a8d5e2; }
+
+/* 지우개 버튼 활성화 스타일 */
+.tool-btn#btn-eraser.active {
+    background-color: #a8d5e2; /* 활성화 시 배경색 변경 */
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.2); /* 안쪽 그림자 효과 */
+}
+
+/* ===== 그림 그리기 상단 UI 스타일 ===== */
+.drawing-header {
+    position: absolute;
+    top: 0.5%; /* 더 위로 이동 */
+    left: 3%;
+    right: 3%;
+    z-index: 55;
+    /* display 속성은 .request-panel로 이동 */
+}
+
+.request-panel {
+    width: 100%; /* 헤더 전체 너비 사용 */
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* 양 끝 정렬 */
+    gap: 10px;
+    background: #fdf6e3;
+    border: 3px solid #654321;
+    border-radius: 15px;
+    padding: 4px 10px; /* 패딩을 줄여 얇게 만듦 */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+    box-sizing: border-box; /* 패딩 포함 너비 계산 */
+}
+
+.request-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.timer-container {
+    position: relative;
+    width: clamp(40px, 6.5vw, 55px); /* 크기 소폭 축소 */
+    height: clamp(40px, 6.5vw, 55px); /* 크기 소폭 축소 */
+}
+
+.timer-svg {
+    transform: rotate(-90deg); /* 12시 방향에서 시작 */
+}
+
+.timer-bg, .timer-progress {
+    fill: none;
+    stroke-width: 10;
+}
+
+.timer-bg {
+    stroke: rgba(0,0,0,0.2);
+}
+
+.timer-progress {
+    stroke: #a8d5e2;
+    stroke-linecap: round;
+    stroke-dasharray: 283; /* (2 * PI * 45) */
+    stroke-dashoffset: 0; /* JS로 제어 */
+    transition: stroke-dashoffset 1s linear;
+}
+
+.timer-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Amsterdam', 'GeumEunBoHwa', cursive;
+    font-weight: 700;
+    color: #fff;
+    font-size: clamp(16px, 2.8vw, 22px); /* 폰트 크기 소폭 축소 */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.customer-portrait {
+    width: clamp(36px, 6vw, 50px); /* 크기 소폭 축소 */
+    height: clamp(36px, 6vw, 50px); /* 크기 소폭 축소 */
+    border-radius: 10px;
+    border: 2px solid #654321;
+}
+
+.request-text {
+    margin: 0;
+    font-family: 'Amsterdam', 'GeumEunBoHwa', cursive;
+    font-weight: 700;
+    color: #654321;
+    font-size: clamp(14px, 2.2vw, 18px);
 }
