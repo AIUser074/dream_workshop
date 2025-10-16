@@ -444,17 +444,116 @@ const PaintEngine = {
     },
 
     submit() {
+        if (this.isSubmitted) return; // 중복 제출 방지
+        this.isSubmitted = true;
+        TimerManager.stop(); // 타이머 정지
+
         try {
             const dataUrl = this.canvas.toDataURL('image/png');
             this.emit('canvas:submitted', { dataUrl });
-            // 임시: 저장 동작 대신 로그
-            console.log('canvas submitted (dataUrl length):', dataUrl.length);
+
+            // 로딩 UI 표시
+            const loadingSpinner = document.getElementById('loading-spinner');
+            if (loadingSpinner) loadingSpinner.classList.remove('hidden');
+
+            // --- LLM 응답 시뮬레이션 ---
+            console.log('LLM에게 그림 제출 및 채점 요청 시뮬레이션...');
+            setTimeout(() => {
+                const score = Math.floor(Math.random() * 101); // 0~100점 사이 랜덤 점수
+                console.log(`채점 완료! 점수: ${score}`);
+                
+                // 로딩 UI 숨김
+                if (loadingSpinner) loadingSpinner.classList.add('hidden');
+
+                // 결과 처리를 위해 Game 객체에 이벤트 전달
+                this.emit('drawing:finished', { score });
+
+            }, 2500); // 2.5초 동안 응답 대기
+
         } catch (e) {
             console.error('submit failed', e);
+            this.isSubmitted = false; // 실패 시 다시 제출 가능하도록
         }
     },
 
     emit(name, detail) {
         document.dispatchEvent(new CustomEvent(name, { detail }));
+    }
+};
+
+const TimerManager = {
+    init() {
+        this.progressEl = document.querySelector('.timer-progress');
+        this.textEl = document.querySelector('.timer-text');
+        if (!this.progressEl) return;
+
+        this.radius = this.progressEl.r.baseVal.value;
+        this.circumference = 2 * Math.PI * this.radius;
+        this.progressEl.style.strokeDasharray = this.circumference;
+        
+        this.duration = 0;
+        this.remaining = 0;
+        this.timerId = null;
+        this.onEndCallback = null;
+    },
+
+    start(duration, onEnd) {
+        this.duration = duration;
+        this.remaining = duration;
+        this.onEndCallback = onEnd;
+        this.paused = false;
+
+        if (this.timerId) clearInterval(this.timerId);
+        this.updateVisuals();
+
+        this.timerId = setInterval(() => {
+            if (this.paused) return; // 일시정지 중에는 진행하지 않음
+            this.remaining--;
+            this.updateVisuals();
+            if (this.remaining <= 0) {
+                this.stop();
+                if (this.onEndCallback) this.onEndCallback();
+            }
+        }, 1000);
+    },
+
+    pause() {
+        this.paused = true;
+    },
+
+    resume() {
+        this.paused = false;
+    },
+
+    stop() {
+        clearInterval(this.timerId);
+        this.timerId = null;
+        this.paused = false;
+    },
+
+    updateVisuals() {
+        if (!this.progressEl || !this.textEl) return;
+        const offset = this.circumference * (1 - this.remaining / this.duration);
+        this.progressEl.style.strokeDashoffset = offset;
+        this.textEl.textContent = this.remaining;
+
+        // 시간대별 클래스 변경
+        const container = this.progressEl.closest('.timer-container');
+        if (!container) return;
+
+        if (this.remaining <= 10) {
+            container.classList.add('critical');
+            this.progressEl.classList.add('critical');
+            container.classList.remove('warning');
+            this.progressEl.classList.remove('warning');
+        } else if (this.remaining <= 20) {
+            container.classList.add('warning');
+            this.progressEl.classList.add('warning');
+            container.classList.remove('critical');
+            this.progressEl.classList.remove('critical');
+        } else {
+            container.classList.remove('warning', 'critical');
+            this.progressEl.classList.remove('warning', 'critical');
+        }
     }
 };

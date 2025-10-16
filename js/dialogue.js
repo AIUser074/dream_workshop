@@ -8,6 +8,11 @@ const DialogueManager = {
         this.onDialogueEnd = null;
         this.canProceedToNext = false; // 다음으로 진행 가능한지 여부
         this.clickListenerTarget = document.getElementById('game-viewport'); // 클릭 이벤트 리스너 타겟
+
+        // 첫 대사 지연을 위한 타이머 상태
+        this.firstDialogueTimeoutId = null;
+        this.firstDialogueStartTime = 0;
+        this.firstDialogueRemainingTime = 0;
     },
 
     startDialogue(npcId, dialogueKey, onEndCallback) {
@@ -28,16 +33,44 @@ const DialogueManager = {
         this.currentNpc.dialogBox.classList.add('active');
 
         // 대화 상자 애니메이션(1.2초)이 끝난 후 첫 대사를 시작합니다.
-        setTimeout(() => {
+        const initialDelay = 1200;
+        this.firstDialogueStartTime = Date.now();
+        this.firstDialogueRemainingTime = initialDelay;
+        this.firstDialogueTimeoutId = setTimeout(() => {
             this.showNextDialogue();
-        }, 1200);
+            this.firstDialogueTimeoutId = null;
+        }, initialDelay);
 
         // 화면 전체에 클릭 이벤트 리스너 추가
         this.boundShowNextDialogue = this.showNextDialogue.bind(this);
         this.clickListenerTarget.addEventListener('click', this.boundShowNextDialogue);
     },
 
+    pause() {
+        if (this.firstDialogueTimeoutId) {
+            clearTimeout(this.firstDialogueTimeoutId);
+            this.firstDialogueTimeoutId = null;
+            const elapsedTime = Date.now() - this.firstDialogueStartTime;
+            this.firstDialogueRemainingTime = Math.max(0, this.firstDialogueRemainingTime - elapsedTime);
+        }
+    },
+
+    resume() {
+        if (this.firstDialogueRemainingTime > 0 && this.isDialogueActive && this.currentDialogueIndex === 0) {
+            this.firstDialogueTimeoutId = setTimeout(() => {
+                this.showNextDialogue();
+                this.firstDialogueTimeoutId = null;
+            }, this.firstDialogueRemainingTime);
+            this.firstDialogueRemainingTime = 0; // 재개 후에는 초기화
+        }
+    },
+
     showNextDialogue(event) {
+        // 게임이 일시정지 상태이면 대사를 진행하지 않음
+        if (typeof Game !== 'undefined' && Game.settings.paused) {
+            return;
+        }
+
         // 클릭 이벤트가 UI 요소(버튼 등)에서 발생했는지 확인
         if (event) {
             const target = event.target;

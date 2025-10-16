@@ -7,15 +7,17 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <div id="game-background"></div>
     <div id="game-viewport">
+        <div id="notification-container"></div>
         <div id="game-container">
-            <header class="title-screen">
+        <header class="title-screen">
                 <div class="title-container">
                     <img src="assets/images/ui/cloud.png" alt="Cloud" class="title-cloud">
                     <h1 class="game-title"><span>꿈의</span> <span>그림</span> <span>공방</span></h1>
                 </div>
                 <button id="start-button" class="start-button">게임 시작</button>
-            </header>
+        </header>
         </div>
         <div id="main-container" class="screen screen-fade">
             <div class="status-bar">
@@ -54,18 +56,133 @@
                 <img src="assets/images/ui/icon/shop_Icon.png" alt="상점" class="action-icon">
                 <span class="action-label">상점</span>
             </button>
-            <button id="btn-decorate" class="action-btn-individual" data-action="decorate">
-                <img src="assets/images/ui/icon/pallet_Icon.png" alt="꾸미기" class="action-icon">
-                <span class="action-label">꾸미기</span>
+            <button id="btn-quest" class="action-btn-individual" data-action="quest">
+                <img src="assets/images/ui/icon/quest_Icon.png" alt="의뢰" class="action-icon">
+                <span class="action-label">의뢰</span>
             </button>
             <button id="btn-log" class="action-btn-individual" data-action="log">
                 <img src="assets/images/ui/icon/list_Icon.png" alt="기록" class="action-icon">
                 <span class="action-label">기록</span>
             </button>
+            <!-- 그림 제출 애니메이션용 캔버스 아이템 -->
+            <img src="assets/images/items/canvas_Item.png" alt="Finished Canvas" id="finished-canvas-item" class="hidden">
+            <!-- 보상 이펙트 컨테이너 -->
+            <div id="reward-container"></div>
+        </div>
+
+        <!-- 설정 모달 (main-container 바깥으로 이동) -->
+        <div id="settings-overlay" class="settings-overlay hidden" aria-hidden="true">
+            <div class="settings-panel" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+                <div class="settings-header">
+                    <h3 id="settings-title" class="settings-title">설정</h3>
+                    <button id="settings-close" class="settings-close" aria-label="닫기">✕</button>
+                </div>
+                <div class="settings-body">
+                    <label class="settings-row">
+                        <span class="settings-label">배경 음악</span>
+                        <input id="bgm-range" type="range" min="0" max="100" value="70">
+                        <span id="bgm-value" class="settings-value">70%</span>
+                    </label>
+                    <label class="settings-row">
+                        <span class="settings-label">효과음</span>
+                        <input id="sfx-range" type="range" min="0" max="100" value="70">
+                        <span id="sfx-value" class="settings-value">70%</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 강화(업그레이드) 모달 -->
+        <div id="upgrade-overlay" class="upgrade-overlay hidden" aria-hidden="true">
+            <div class="upgrade-panel" role="dialog" aria-modal="true" aria-labelledby="upgrade-title">
+                <div class="upgrade-header">
+                    <h3 id="upgrade-title" class="upgrade-title">기술 강화</h3>
+                    <button id="upgrade-close" class="upgrade-close" aria-label="닫기">✕</button>
+                </div>
+                <!-- 플레이어 상태 표시줄 -->
+                <div class="player-status-bar">
+                    <div class="status-badge-small level">
+                        <span class="badge-text">LV. 1</span>
+                    </div>
+                    <div class="status-badge-small fame">
+                        <img src="assets/images/ui/icon/fame_Icon.png" alt="명성" class="badge-icon-small">
+                        <span class="badge-text">10/100</span>
+                    </div>
+                    <div class="status-badge-small gold">
+                        <img src="assets/images/ui/icon/money_Icon.png" alt="골드" class="badge-icon-small">
+                        <span class="badge-text">120</span>
+                    </div>
+                </div>
+                <!-- 강화 탭 메뉴 -->
+                <div class="upgrade-tabs">
+                    <button class="upgrade-tab active" data-tab="basic">기초</button>
+                    <button class="upgrade-tab" data-tab="expert">중급</button>
+                    <button class="upgrade-tab" data-tab="master">고급</button>
+                </div>
+                <div class="upgrade-body">
+                    <!-- 탭별 내용은 여기에 동적으로 생성됩니다. -->
+                    <div class="upgrade-tab-content" data-tab-content="basic">
+                        <div data-skill-group="basic">
+                            <!-- '기본 역량' 스킬 카드가 여기에 동적으로 추가됩니다. -->
+                        </div>
+                    </div>
+                    <div class="upgrade-tab-content hidden" data-tab-content="expert">
+                        <div data-skill-group="expert">
+                             <!-- '전문 기술' 스킬 카드가 여기에 동적으로 추가됩니다. -->
+                        </div>
+                    </div>
+                    <div class="upgrade-tab-content hidden" data-tab-content="master">
+                        <div data-skill-group="master">
+                             <!-- '장인의 비급' 스킬 카드가 여기에 동적으로 추가됩니다. -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 상점 모달 -->
+        <div id="shop-overlay" class="shop-overlay hidden" aria-hidden="true">
+            <div class="shop-panel" role="dialog" aria-modal="true" aria-labelledby="shop-title">
+                <div class="shop-header">
+                    <h3 id="shop-title" class="shop-title">상점</h3>
+                    <button id="shop-close" class="shop-close" aria-label="닫기">✕</button>
+                </div>
+                <!-- 플레이어 상태 표시줄 (강화와 동일 스타일 재사용) -->
+                <div class="player-status-bar">
+                    <div class="status-badge-small level">
+                        <span class="badge-text">LV. 1</span>
+                    </div>
+                    <div class="status-badge-small fame">
+                        <img src="assets/images/ui/icon/fame_Icon.png" alt="명성" class="badge-icon-small">
+                        <span class="badge-text">0/100</span>
+                    </div>
+                    <div class="status-badge-small gold">
+                        <img src="assets/images/ui/icon/money_Icon.png" alt="골드" class="badge-icon-small">
+                        <span class="badge-text">0</span>
+                    </div>
+                </div>
+                <!-- 탭 메뉴 -->
+                <div class="shop-tabs">
+                    <button class="shop-tab active" data-tab="paints">물감</button>
+                    <button class="shop-tab" data-tab="tools">도구</button>
+                    <button class="shop-tab" data-tab="consumables">소모품</button>
+                </div>
+                <!-- 상점 아이템 영역 -->
+                <div class="shop-body">
+                    <div class="shop-tab-content" data-tab-content="paints"></div>
+                    <div class="shop-tab-content hidden" data-tab-content="tools"></div>
+                    <div class="shop-tab-content hidden" data-tab-content="consumables"></div>
+                </div>
+            </div>
         </div>
 
         <!-- 그림 그리기 모드 UI (수정) -->
         <div id="drawing-mode-container" class="screen screen-slide">
+            <!-- '제출 중' 로딩 스피너 -->
+            <div id="loading-spinner" class="hidden">
+                <div class="spinner"></div>
+                <p>제출 중...</p>
+            </div>
             <div class="drawing-header">
                 <!-- 고객 정보 패널 (타이머 포함) -->
                 <div class="request-panel">
@@ -103,6 +220,7 @@
         </div>
     </div>
     <script src="js/data.js"></script>
+    <script src="js/playerData.js"></script>
     <script src="js/npc.js"></script>
     <script src="js/dialogue.js"></script>
     <script src="js/draw.js"></script>

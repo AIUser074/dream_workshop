@@ -2,6 +2,7 @@ const NPCManager = {
     init() {
         this.npcs = {};
         this.typingTimer = null; // 타이핑 애니메이션 타이머 참조
+        this.typingState = null; // 타이핑 상태 저장을 위한 객체
     },
 
     spawnNPC(npcId, preset = 'default') {
@@ -101,21 +102,49 @@ const NPCManager = {
             element.appendChild(span);
         });
 
-        let i = 0;
+        // 타이핑 상태 저장
+        this.typingState = {
+            element,
+            text,
+            i: 0,
+            speed,
+            onComplete
+        };
+        
+        this.resumeTyping(); // 타이핑 시작
+    },
+
+    pauseTyping() {
+        if (this.typingTimer) {
+            clearInterval(this.typingTimer);
+            this.typingTimer = null;
+            return true; // 타이핑 중이었음을 반환
+        }
+        return false;
+    },
+
+    resumeTyping() {
+        if (!this.typingState) return;
+
+        const { element, text, speed, onComplete } = this.typingState;
+        
+        // 이미 보이는 글자들은 그대로 둠
+        element.classList.add('typing');
+        
         this.typingTimer = setInterval(() => {
-            const span = element.querySelectorAll('span')[i];
+            const span = element.querySelectorAll('span')[this.typingState.i];
             if (span) {
                 span.classList.add('visible');
-                i++;
+                this.typingState.i++;
             }
-            if (i === text.length) {
+            if (this.typingState.i === text.length) {
                 clearInterval(this.typingTimer);
                 this.typingTimer = null;
                 element.classList.remove('typing');
-                // 애니메이션 완료 후 콜백 함수 실행
                 if (typeof onComplete === 'function') {
                     onComplete();
                 }
+                this.typingState = null; // 상태 초기화
             }
         }, speed);
     }
