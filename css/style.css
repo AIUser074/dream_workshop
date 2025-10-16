@@ -1291,9 +1291,10 @@ body, html {
 
 /* 옅은 나무 질감 패널 */
 .settings-panel {
-    position: relative; /* 닫기 버튼 위치의 기준점 */
-    width: min(70vw, 420px); /* 가로 폭을 줄임 */
-    background: #f6ede3; /* 옅은 크림색 바탕 */
+    position: relative;
+    width: clamp(280px, 70vw, 380px); /* 최소, 최적, 최대 너비 설정 */
+    max-height: 85vh; /* 높이는 화면 대비 비율 유지 */
+    background: #f6ede3;
     background-image: linear-gradient(135deg, rgba(255,255,255,0.6), rgba(255,255,255,0) 40%),
                       linear-gradient(0deg, rgba(0,0,0,0.03), rgba(0,0,0,0.03)),
                       repeating-linear-gradient(90deg, rgba(163,121,94,0.08) 0 2px, rgba(163,121,94,0.06) 2px 4px);
@@ -1877,7 +1878,7 @@ body, html {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    /* gap: 10px; */ /* gap 대신 margin으로 간격 제어 */
     pointer-events: none;
 }
 
@@ -1895,6 +1896,18 @@ body, html {
     font-weight: bold;
     animation: fadeInOut 3s cubic-bezier(0.2, 0.9, 0.2, 1.2) forwards;
     white-space: nowrap;
+    margin-bottom: 10px; /* 아이템 간 간격 */
+    transition: all 0.4s cubic-bezier(0.6, 0, 0.4, 1); /* 사라질 때 애니메이션 */
+}
+
+.notification-toast.removing {
+    opacity: 0;
+    transform: scale(0.8);
+    height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-width: 0;
 }
 
 @keyframes fadeInOut {

@@ -73,6 +73,21 @@ const Game = {
         if (upgradeBtn) upgradeBtn.addEventListener('click', () => this.openUpgrade());
         const upgradeCloseBtn = document.getElementById('upgrade-close');
         if (upgradeCloseBtn) upgradeCloseBtn.addEventListener('click', () => this.closeUpgrade());
+
+        // 강화 버튼 이벤트 위임
+        const upgradeOverlay = document.getElementById('upgrade-overlay');
+        if (upgradeOverlay) {
+            upgradeOverlay.addEventListener('click', (e) => {
+                const upgradeBtn = e.target.closest('.upgrade-btn');
+                if (!upgradeBtn || upgradeBtn.disabled) return;
+
+                const skillCard = upgradeBtn.closest('.skill-card');
+                if (skillCard && skillCard.dataset.skillId) {
+                    this.upgradeSkill(skillCard.dataset.skillId);
+                }
+            });
+        }
+
         // 상점 패널 이벤트 바인딩
         const shopBtn = document.getElementById('btn-shop');
         if (shopBtn) shopBtn.addEventListener('click', () => this.openShop());
@@ -240,6 +255,38 @@ const Game = {
                 </div>
             `;
         }
+    },
+
+    upgradeSkill(skillId) {
+        const skill = skillData[skillId];
+        const playerSkills = PlayerData.get('skills');
+        const currentLevel = playerSkills[skillId] || 0;
+        const maxLevel = skill.levels.length;
+
+        if (currentLevel >= maxLevel) {
+            this.showNotification('이미 최고 레벨입니다!');
+            return;
+        }
+
+        const upgradeCost = skill.levels[currentLevel].cost;
+        const playerGold = PlayerData.get('gold');
+
+        if (playerGold < upgradeCost) {
+            this.showNotification('골드가 부족합니다!');
+            return;
+        }
+
+        // 강화 실행
+        PlayerData.set('gold', playerGold - upgradeCost);
+        playerSkills[skillId] = currentLevel + 1;
+        PlayerData.set('skills', playerSkills);
+
+        // 알림 표시
+        this.showNotification(`${skill.name}이(가) LV.${currentLevel + 1}이(가) 되었습니다!`);
+
+        // UI 갱신
+        this.renderUpgradePanel();
+        this.updateUpgradeStatus();
     },
 
     updateUpgradeStatus() {
@@ -858,8 +905,16 @@ const Game = {
 
         container.appendChild(toast);
 
-        toast.addEventListener('animationend', () => {
-            toast.remove();
+        // 일정 시간 후 'removing' 클래스를 추가하여 사라지는 애니메이션 시작
+        setTimeout(() => {
+            toast.classList.add('removing');
+        }, 2600); // fadeInOut 애니메이션 시간(3s)보다 약간 짧게 설정
+
+        // transition 애니메이션이 끝난 후 DOM에서 요소 제거
+        toast.addEventListener('transitionend', (e) => {
+            if (e.propertyName === 'height' && toast.classList.contains('removing')) {
+                toast.remove();
+            }
         });
     },
 };
