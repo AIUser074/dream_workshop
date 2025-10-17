@@ -746,6 +746,9 @@ const Game = {
         if (!container) return;
         container.innerHTML = '';
 
+        // "나의 팔레트" UI 생성
+        this.renderMyPalette(container, purchased);
+
         // 1. 초보자용 팔레트는 항상 표시
         this.createShopItemCard(container, 'paints', 'beginnerPaletteSet', shopData.paints.beginnerPaletteSet, playerLevel, playerGold);
 
@@ -763,7 +766,38 @@ const Game = {
             });
         }
     },
-    
+
+    renderMyPalette(container, purchased) {
+        let currentPalette = [...initialPalette];
+
+        if (purchased.beginnerPaletteSet) {
+            currentPalette.push(...shopData.paints.beginnerPaletteSet.unlocks);
+        }
+        if (purchased.basicPaletteSet) {
+            currentPalette.push(...shopData.paints.basicPaletteSet.unlocks);
+        }
+        purchased.paints.forEach(paintId => {
+            const paintData = shopData.paints[paintId];
+            if (paintData && paintData.special) {
+                currentPalette.push({ name: paintData.name.replace(' 물감', ''), color: paintData.color });
+            }
+        });
+
+        const paletteContainer = document.createElement('div');
+        paletteContainer.className = 'my-palette-container';
+
+        const swatchesHTML = currentPalette.map(paint => 
+            `<div class="my-palette-swatch" style="background-color: ${paint.color};" title="${paint.name}"></div>`
+        ).join('');
+
+        paletteContainer.innerHTML = `
+            <h5 class="my-palette-title">나의 팔레트 (${currentPalette.length}색)</h5>
+            <div class="my-palette-grid">${swatchesHTML}</div>
+        `;
+
+        container.appendChild(paletteContainer);
+    },
+
     createShopItemCard(container, category, itemId, item, playerLevel, playerGold) {
         const purchased = PlayerData.get('purchasedItems');
         let isPurchased = false;
@@ -778,9 +812,20 @@ const Game = {
         card.className = `shop-item-card ${isPurchased ? 'purchased' : ''} ${isLocked ? 'locked' : ''}`;
         card.dataset.itemId = itemId;
 
-        const iconHTML = item.color
-            ? `<div class="shop-item-icon paint-preview" style="background-color:${item.color};"></div>`
-            : `<div class="shop-item-icon">${item.icon}</div>`;
+        let iconHTML;
+        if (item.unlocks && Array.isArray(item.unlocks)) {
+            // 팔레트 세트 미리보기 생성
+            const swatches = item.unlocks.map(paint => 
+                `<div class="palette-set-swatch" style="background-color: ${paint.color};"></div>`
+            ).join('');
+            iconHTML = `<div class="shop-item-icon"><div class="palette-set-preview">${swatches}</div></div>`;
+        } else if (item.color) {
+            // 개별 물감 색상 미리보기
+            iconHTML = `<div class="shop-item-icon paint-preview" style="background-color:${item.color};"></div>`;
+        } else {
+            // 일반 이모티콘 아이콘
+            iconHTML = `<div class="shop-item-icon">${item.icon}</div>`;
+        }
         
         let buttonHTML;
         if (isPurchased) {
@@ -855,7 +900,36 @@ const Game = {
         const item = shopData[category]?.[itemId];
         if (!item) return;
         
-        // 물감 구매 로직 수정
+        // 소모품 구매 로직
+        if (category === 'consumables') {
+            const today = new Date().toISOString().split('T')[0];
+            const itemData = purchased.consumables[itemId] || { date: today, count: 0 };
+
+            if (itemData.date !== today) {
+                itemData.date = today;
+                itemData.count = 0;
+            }
+
+            if (itemData.count >= item.dailyLimit) {
+                this.showNotification('오늘의 구매 한도에 도달했습니다!');
+                return;
+            }
+            if (playerGold < item.cost) {
+                this.showNotification('골드가 부족합니다!');
+                return;
+            }
+
+            PlayerData.set('gold', playerGold - item.cost);
+            itemData.count++;
+            purchased.consumables[itemId] = itemData;
+            PlayerData.set('purchasedItems', purchased);
+            this.showNotification(`${item.name}을(를) 구매했습니다!`);
+            this.renderShopPanel();
+            this.updateShopStatus();
+            return; // 소모품 처리 후 함수 종료
+        }
+
+        // 물감 구매 로직
         if (category === 'paints') {
             const item = shopData.paints[itemId];
             if (!item) return;

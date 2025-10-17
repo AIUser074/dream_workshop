@@ -153,6 +153,13 @@ const drawConfig = {
     eraserSizes: [24, 16, 8] /* 굵은 순서로 변경 */
 };
 
+const initialPalette = [
+    { name: '검정', color: '#000000' },
+    { name: '흰색', color: '#FFFFFF' },
+    { name: '빨강', color: '#FF0000' },
+    { name: '파랑', color: '#0000FF' }
+];
+
 const shopData = {
     paints: {
         // 2단계: 튜토리얼 -> 초보자용 팔레트 (LV.1)
@@ -161,16 +168,28 @@ const shopData = {
             icon: '🌱',
             description: "그림의 기초가 되는 노랑, 초록 2색을 해금합니다.",
             reqLevel: 1,
-            cost: 100
+            cost: 100,
+            unlocks: [
+                { name: '노랑', color: '#FFD700' },
+                { name: '초록', color: '#228B22' }
+            ]
         },
 
         // 3단계: 기본 팔레트 완성 (세트 상품)
         basicPaletteSet: {
-            name: '기본 팔레트 확장 세트',
+            name: '기본 팔레트 세트',
             icon: '🎨',
             description: "그림의 기본이 되는 6가지 필수 색상을 한 번에 해금합니다.",
             reqLevel: 2,
-            cost: 800
+            cost: 800,
+            unlocks: [
+                { name: '주황', color: '#FF8C00' },
+                { name: '갈색', color: '#8B4513' },
+                { name: '보라', color: '#9370DB' },
+                { name: '분홍', color: '#FF69B4' },
+                { name: '회색', color: '#808080' },
+                { name: '하늘', color: '#87CEEB' }
+            ]
         },
 
         // 4단계: 특수 색상 (개별 구매)
@@ -201,9 +220,9 @@ const shopData = {
 
     consumables: {
         goldenBrush: {
-            name: '황금 붓 (30분)',
+            name: '황금 붓',
             icon: '🖌️💰',
-            description: '사용 후 30분 동안 모든 의뢰에서 획득하는 골드가 2배가 됩니다. (1회용)',
+            description: '사용 후 다음 손님 5명에게서 획득하는 골드가 2배가 됩니다. (1회용)',
             cost: 500,
             dailyLimit: 1
         }

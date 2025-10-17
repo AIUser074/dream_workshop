@@ -5,11 +5,11 @@ const PlayerData = {
         nextLevelXp: 100,
         reputation: 0,
         nextReputationGoal: 100, // 목표 명성 추가
-        gold: 1000, // 테스트를 위해 초기 골드 증가
+        gold: 10000, // 테스트를 위해 초기 골드 증가
         skills: {
-            'concentration': 1,
+            'concentration': 0,
             'negotiator': 0,
-            'wisdom': 3,
+            'wisdom': 0,
             'mindsEye': 0,
             'reputation': 0,
             'trust': 0,

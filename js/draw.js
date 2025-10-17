@@ -130,6 +130,8 @@ const DrawUIManager = {
 
     // Panels
     openColorPanel() {
+        this.deactivateEraser(); // 지우개 비활성화
+
         // 토글: 같은 버튼을 다시 누르면 닫기
         if (this.openPanelType === 'color' && !this.panel.classList.contains('hidden')) {
             this.closeAllPanels();
@@ -171,6 +173,8 @@ const DrawUIManager = {
     },
 
     openBrushPanel(anchorEl) {
+        this.deactivateEraser(); // 지우개 비활성화
+
         // 토글: 같은 버튼을 다시 누르면 닫기
         if (this.openPanelType === 'brush' && !this.panel.classList.contains('hidden')) {
             this.closeAllPanels();
@@ -265,6 +269,14 @@ const DrawUIManager = {
         this.state.eraserActive = !this.state.eraserActive;
         this.btnEraser.classList.toggle('active', this.state.eraserActive);
         this.emit('eraser:toggle', { active: this.state.eraserActive });
+    },
+
+    deactivateEraser() {
+        if (this.state.eraserActive) {
+            this.state.eraserActive = false;
+            this.btnEraser.classList.remove('active');
+            this.emit('eraser:toggle', { active: false });
+        }
     },
 
     openConfirm(message, onConfirm) {
