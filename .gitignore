@@ -6,7 +6,6 @@ dist/
 .DS_Store
 포트폴리오용/
 
-
 # 환경 변수 (Vercel에 등록하셨더라도 로컬 실수 방지용)
 .env
 .env.local
@@ -16,3 +15,16 @@ dist/
 .vscode/
 .cursor/
 *.suo
+
+# ---------------------------------------------------
+# 서비스 보호용 리소스 및 데이터 (GitHub 업로드 방지)
+# 카피캣 및 에셋 유출을 막기 위해 아래 항목을 제외합니다.
+# ---------------------------------------------------
+assets/
+js/data.js
+js/requests.js
+js/attendanceData.js
+js/tutorialManager.js
+js/asset-list.js
+js/npc.js
+# ---------------------------------------------------
