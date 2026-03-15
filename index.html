@@ -3,16 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
     <title>Dream Workshop</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="assets/images/game_logo.png" type="image/png">
     <link rel="manifest" href="manifest.json">
+    <link rel="preload" as="font" href="assets/font/나눔손글씨 암스테르담.ttf" type="font/ttf" crossorigin>
+    <link rel="preload" as="font" href="assets/font/나눔손글씨 금은보화.ttf" type="font/ttf" crossorigin>
 </head>
 <body>
     <div id="game-background"></div>
     <div id="game-viewport">
+        <!-- 부트 로딩 오버레이 (타이틀 이전) -->
+        <div id="boot-loader" class="boot-loader" aria-hidden="true">
+            <div class="boot-loader-inner">
+                <div class="boot-spinner"></div>
+                <p class="boot-message">로딩 중...</p>
+                <div class="boot-progress">
+                    <div class="boot-progress-bar" style="width:0%"></div>
+                </div>
+            </div>
+        </div>
         <div id="notification-container"></div>
+        <div id="reputation-tooltip" class="reputation-tooltip hidden" role="status" aria-live="polite"></div>
         <div id="game-container">
         <header class="title-screen">
+            <img src="assets/images/ui/ALL.png" alt="All Users" class="rating-icon">
                 <div class="title-container">
                     <img src="assets/images/ui/cloud.png" alt="Cloud" class="title-cloud">
                     <h1 class="game-title"><span>꿈의</span> <span>그림</span> <span>공방</span></h1>
@@ -43,9 +62,9 @@
                     <button class="settings-button">
                         <img src="assets/images/ui/icon/setting_Icon.png" alt="Settings">
                     </button>
-                    <button class="attendance-icon-button" title="출석부">
+                    <!-- <button class="attendance-icon-button" title="출석부">
                         <img src="assets/images/ui/icon/calender_Icon.png" alt="Attendance">
-                    </button>
+                    </button> -->
                 </div>
             </div>
             <img src="assets/images/ui/table.png" alt="Workshop Table" class="atelier-table">
@@ -69,6 +88,8 @@
             <img src="assets/images/items/canvas_Item.png" alt="Finished Canvas" id="finished-canvas-item" class="hidden">
             <!-- 보상 이펙트 컨테이너 -->
             <div id="reward-container"></div>
+            <!-- 활성 소모품 버프 표시 -->
+            <div id="consumable-buff-bar" class="consumable-buff-bar hidden" aria-live="polite"></div>
         </div>
 
         <!-- 설정 모달 (main-container 바깥으로 이동) -->
@@ -89,6 +110,11 @@
                         <input id="sfx-range" type="range" min="0" max="100" value="70">
                         <span id="sfx-value" class="settings-value">70%</span>
                     </label>
+                    <div class="settings-divider" role="presentation"></div>
+                    <div class="settings-reset-section">
+                        <p class="settings-reset-desc">모든 진행 정보가 삭제되며 되돌릴 수 없습니다.</p>
+                        <button id="btn-reset-game" class="settings-reset-btn" type="button">게임 초기화</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -177,6 +203,82 @@
             </div>
         </div>
 
+        <!-- 의뢰 UI -->
+        <div id="quest-overlay" class="overlay hidden">
+            <div class="quest-panel">
+                <button id="quest-close" class="quest-close">×</button>
+                <h2 class="quest-title">꿈의 의뢰 게시판</h2>
+                <div class="quest-body">
+                    <!-- 의뢰 카드들이 동적으로 생성됩니다 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 의뢰 상세 정보 UI (편지) -->
+        <div id="quest-detail-overlay" class="overlay hidden">
+            <div class="quest-detail-panel">
+                <button id="quest-detail-close" class="quest-detail-close">×</button>
+                <div id="quest-detail-content" class="quest-letter">
+                    <!-- 편지 내용이 동적으로 채워집니다 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 기록(앨범) UI -->
+        <div id="album-overlay" class="overlay hidden">
+            <div class="album-panel">
+                <button id="album-close" class="album-close">×</button>
+                <div class="album-header">
+                    <h2 class="album-title">추억의 앨범</h2>
+                </div>
+                <div class="album-body" id="album-grid">
+                    <!-- 폴라로이드 사진들이 동적으로 생성됩니다 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 작품 상세 정보 팝업 -->
+        <div id="log-detail-overlay" class="overlay hidden">
+            <div class="log-detail-panel">
+                <button id="log-detail-close" class="log-detail-close">×</button>
+                <div class="log-detail-content">
+                    <div class="log-detail-image-wrapper">
+                        <img id="log-detail-img" src="" alt="작품 이미지">
+                    </div>
+                    <div class="log-detail-info" id="log-detail-info">
+                        <!-- 작품 정보가 동적으로 채워집니다 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 출석체크 UI -->
+        <!-- <div id="attendance-overlay" class="overlay hidden">
+            <div class="attendance-panel">
+                <button id="attendance-close" class="attendance-close">×</button>
+                <div class="attendance-header">
+                    <h2 class="attendance-title">출석 체크</h2>
+                    <p class="attendance-subtitle">남은 시간 : <span id="attendance-days-left">13일</span></p>
+                </div>
+                <div class="attendance-body">
+                    <div class="attendance-grid" id="attendance-grid">
+                    </div>
+                </div>
+                <button id="attendance-claim-btn" class="attendance-claim-btn">보상받기</button>
+            </div>
+        </div> -->
+
+
+        <!-- 상세 정보 모달 (범용) -->
+        <div id="detail-modal-overlay" class="overlay hidden">
+            <div class="detail-modal-panel">
+                <button id="detail-modal-close" class="detail-modal-close">×</button>
+                <div id="detail-modal-content">
+                    <!-- 내용이 여기에 동적으로 채워집니다 -->
+                </div>
+            </div>
+        </div>
+
         <!-- 그림 그리기 모드 UI (수정) -->
         <div id="drawing-mode-container" class="screen screen-slide">
             <!-- '제출 중' 로딩 스피너 -->
@@ -190,6 +292,7 @@
                     <div class="request-content">
                         <img src="assets/images/npcs/thomas_portrait.png" alt="Customer Portrait" class="customer-portrait">
                         <p class="request-text">행복한 돌고래를 그려주세요!</p>
+                        <img id="quest-type-icon" class="quest-type-icon" src="assets/images/ui/icon/draw_Icon.png" alt="Quest Type">
                     </div>
                     <!-- 360도 타이머 -->
                     <div class="timer-container">
@@ -201,30 +304,53 @@
                     </div>
                 </div>
             </div>
-            <img src="assets/images/ui/table.png" alt="Top Table" class="drawing-table-top">
+            <img src="assets/images/ui/wood_tile.jpeg" alt="Top Table" class="drawing-table-top">
             <div class="canvas-wrapper">
-                <img src="assets/images/ui/draw_canvas.png" alt="Drawing Canvas" class="drawing-canvas-img">
                 <canvas id="paint-canvas"></canvas>
             </div>
-            <img src="assets/images/ui/table.png" alt="Bottom Table" class="drawing-table-bottom">
+            <img src="assets/images/ui/wood_tile.jpeg" alt="Bottom Table" class="drawing-table-bottom">
             <div class="drawing-tools-wrapper">
                 <!-- 현재 선택된 색상 표시 버튼 -->
                 <button class="color-btn active" id="current-color-btn" style="background-color: #000000;"></button>
                 <!-- 도구 버튼들 -->
                 <div class="tool-buttons">
                     <button class="tool-btn" id="btn-brush-size"><img src="assets/images/ui/icon/draw_mode/size_Icon.png" alt="Brush Size"></button>
+                    <button class="tool-btn hidden" id="btn-fill"><img src="assets/images/ui/icon/draw_mode/fill_Icon.png" alt="Fill"></button>
                     <button class="tool-btn" id="btn-eraser"><img src="assets/images/ui/icon/draw_mode/erase_Icon.png" alt="Eraser"></button>
+                    <button class="tool-btn hidden" id="btn-undo"><img src="assets/images/ui/icon/draw_mode/undo_Icon.png" alt="Undo"></button>
                     <button class="tool-btn" id="btn-reset-canvas"><img src="assets/images/ui/icon/draw_mode/reset_Icon.png" alt="Reset Canvas"></button>
                     <button class="tool-btn" id="btn-finish-drawing"><img src="assets/images/ui/icon/draw_mode/finish_Icon.png" alt="Finish"></button>
                 </div>
             </div>
         </div>
     </div>
-    <script src="js/data.js"></script>
+    <script src="js/asset-list.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/audioManager.js"></script>
     <script src="js/playerData.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/requests.js"></script>
+    <script src="js/llm.js"></script>
+    <script src="js/attendanceData.js"></script>
     <script src="js/npc.js"></script>
     <script src="js/dialogue.js"></script>
+    <script src="js/tutorialManager.js"></script>
     <script src="js/draw.js"></script>
+    <script src="js/ad-sdk-bundle.js"></script> <!-- AdMob SDK Adapter Bundle -->
+    <script src="js/adManager.js"></script>
     <script src="js/main.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then((registration) => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch((err) => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>

@@ -1,0 +1,18 @@
+# 빌드 결과물 및 캐시
+node_modules/
+dist/
+.granite/
+*.ait
+.DS_Store
+포트폴리오용/
+
+
+# 환경 변수 (Vercel에 등록하셨더라도 로컬 실수 방지용)
+.env
+.env.local
+.env.*.local
+
+# 에디터 설정
+.vscode/
+.cursor/
+*.suo

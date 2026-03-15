@@ -1,0 +1,29 @@
+{
+  "name": "dream_workshop",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "granite dev",
+    "prebuild": "node scripts/generate-asset-list.js",
+    "build": "npm run prebuild && granite build",
+    "update-assets": "node scripts/generate-asset-list.js",
+
+    "build:files": "npm run clean && npm run copy-assets && npm run copy-js && npm run copy-css && npm run copy-html",
+
+    "clean": "if exist dist (rmdir /s /q dist)",
+    "copy-assets": "xcopy .\\assets .\\dist\\assets /E /I /Y",
+    "copy-js": "xcopy .\\js .\\dist\\js /E /I /Y",
+    "copy-css": "xcopy .\\css .\\dist\\css /E /I /Y",
+    "copy-html": "copy .\\index.html .\\dist"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  
+  "dependencies": {},
+  
+  "devDependencies": {
+    "@apps-in-toss/web-framework": "^1.4.0"
+  }
+}

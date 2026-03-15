@@ -1,0 +1,165 @@
+<svg width="1600" height="980" viewBox="0 0 1600 980" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1600" y2="980" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B1020"/>
+      <stop offset="1" stop-color="#141B34"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#1B2547"/>
+      <stop offset="1" stop-color="#121A31"/>
+    </linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#8CB4FF"/>
+      <stop offset="1" stop-color="#5D7CFF"/>
+    </linearGradient>
+    <linearGradient id="green" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#65F0D0"/>
+      <stop offset="1" stop-color="#21C7A8"/>
+    </linearGradient>
+    <linearGradient id="orange" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#FFC978"/>
+      <stop offset="1" stop-color="#FF9D42"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#000000" flood-opacity="0.28"/>
+    </filter>
+    <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="10" refY="7" orient="auto">
+      <path d="M0 0L14 7L0 14V0Z" fill="#7C9CFF"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="14" markerHeight="14" refX="10" refY="7" orient="auto">
+      <path d="M0 0L14 7L0 14V0Z" fill="#34D7B7"/>
+    </marker>
+    <marker id="arrowOrange" markerWidth="14" markerHeight="14" refX="10" refY="7" orient="auto">
+      <path d="M0 0L14 7L0 14V0Z" fill="#FFAF57"/>
+    </marker>
+    <style>
+      .title { font: 800 34px Arial, sans-serif; fill: #F4F7FF; }
+      .subtitle { font: 500 17px Arial, sans-serif; fill: #AFC0E6; }
+      .section { font: 700 22px Arial, sans-serif; fill: #FFFFFF; }
+      .label { font: 700 16px Arial, sans-serif; fill: #DDE7FF; }
+      .body { font: 500 15px Arial, sans-serif; fill: #B8C7E8; }
+      .small { font: 600 13px Arial, sans-serif; fill: #D9E5FF; }
+      .tiny { font: 500 12px Arial, sans-serif; fill: #9FB0D1; }
+      .chip { font: 700 12px Arial, sans-serif; fill: #0B1020; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="980" fill="url(#bg)"/>
+  <circle cx="220" cy="120" r="180" fill="#7C9CFF" opacity="0.08"/>
+  <circle cx="1420" cy="160" r="220" fill="#38E2C2" opacity="0.08"/>
+
+  <text x="80" y="82" class="title">Dream Workshop AI System Architecture</text>
+  <text x="80" y="118" class="subtitle">Client controls score and rewards while LLM handles fact extraction and one-line reactions.</text>
+
+  <g filter="url(#shadow)">
+    <rect x="80" y="200" width="220" height="130" rx="24" fill="url(#panel)" stroke="#2A3A6A"/>
+  </g>
+  <text x="110" y="246" class="section">User</text>
+  <text x="110" y="282" class="body">- Draws an image</text>
+  <text x="110" y="307" class="body">- Chooses a quest</text>
+  <text x="110" y="332" class="body">- Receives score and reward</text>
+
+  <g filter="url(#shadow)">
+    <rect x="360" y="160" width="510" height="360" rx="30" fill="url(#panel)" stroke="#33477F"/>
+    <rect x="390" y="208" width="450" height="78" rx="18" fill="#0F1730" stroke="#2C3D70"/>
+    <rect x="390" y="306" width="450" height="92" rx="18" fill="#0F1730" stroke="#2C3D70"/>
+    <rect x="390" y="418" width="450" height="72" rx="18" fill="#0F1730" stroke="#2C3D70"/>
+  </g>
+  <text x="390" y="194" class="section">Client App (HTML5 Canvas / JS / Toss WebView)</text>
+  <text x="412" y="240" class="label">1. Input and image preprocessing</text>
+  <text x="412" y="265" class="body">Crop, resize, compress to JPEG 0.8, then send Base64 payload</text>
+  <text x="412" y="338" class="label">2. Game rule control</text>
+  <text x="412" y="363" class="body">Quest branching, score calculation, reward logic, story result selection</text>
+  <text x="412" y="388" class="body">Same image is evaluated under the same deterministic client rules</text>
+  <text x="412" y="452" class="label">3. Early Exit</text>
+  <text x="412" y="477" class="body">If is_drawing is false, skip follow-up generation and fail fast</text>
+
+  <g filter="url(#shadow)">
+    <rect x="960" y="160" width="290" height="360" rx="30" fill="url(#panel)" stroke="#33477F"/>
+    <rect x="990" y="208" width="230" height="88" rx="18" fill="#0F1730" stroke="#2C3D70"/>
+    <rect x="990" y="316" width="230" height="88" rx="18" fill="#0F1730" stroke="#2C3D70"/>
+    <rect x="990" y="424" width="230" height="66" rx="18" fill="#0F1730" stroke="#2C3D70"/>
+  </g>
+  <text x="990" y="194" class="section">Vercel Serverless API</text>
+  <text x="1012" y="240" class="label">/api/evaluate</text>
+  <text x="1012" y="264" class="body">API key hidden on server</text>
+  <text x="1012" y="286" class="body">CORS and OPTIONS handling</text>
+  <text x="1012" y="348" class="label">Prompt builder</text>
+  <text x="1012" y="372" class="body">Draw mode: rubrics JSON</text>
+  <text x="1012" y="394" class="body">Solve mode: ANALYZE and CREATE split</text>
+  <text x="1012" y="458" class="label">Provider fallback</text>
+  <text x="1012" y="482" class="body">Gemini to OpenAI sequential fallback</text>
+
+  <g filter="url(#shadow)">
+    <rect x="1320" y="160" width="200" height="360" rx="30" fill="url(#panel)" stroke="#33477F"/>
+    <rect x="1350" y="214" width="140" height="92" rx="18" fill="#0F1730" stroke="#2C3D70"/>
+    <rect x="1350" y="332" width="140" height="92" rx="18" fill="#0F1730" stroke="#2C3D70"/>
+  </g>
+  <text x="1375" y="194" class="section">LLM Providers</text>
+  <text x="1387" y="250" class="label">Gemini</text>
+  <text x="1372" y="275" class="body">Vision and text</text>
+  <text x="1389" y="368" class="label">OpenAI</text>
+  <text x="1372" y="393" class="body">Vision and text</text>
+
+  <path d="M300 265H346" stroke="#7C9CFF" stroke-width="6" stroke-linecap="round" marker-end="url(#arrowBlue)"/>
+  <path d="M870 265H944" stroke="#7C9CFF" stroke-width="6" stroke-linecap="round" marker-end="url(#arrowBlue)"/>
+  <path d="M1250 265H1304" stroke="#7C9CFF" stroke-width="6" stroke-linecap="round" marker-end="url(#arrowBlue)"/>
+  <path d="M1320 470H1266" stroke="#34D7B7" stroke-width="6" stroke-linecap="round" marker-end="url(#arrowGreen)"/>
+  <path d="M960 470H884" stroke="#34D7B7" stroke-width="6" stroke-linecap="round" marker-end="url(#arrowGreen)"/>
+  <path d="M360 470H286" stroke="#34D7B7" stroke-width="6" stroke-linecap="round" marker-end="url(#arrowGreen)"/>
+  <text x="304" y="248" class="small">Submit image</text>
+  <text x="886" y="248" class="small">POST /api/evaluate</text>
+  <text x="1262" y="248" class="small">Call model</text>
+  <text x="1190" y="458" class="small">JSON result</text>
+  <text x="770" y="458" class="small">Analysis and comment</text>
+  <text x="202" y="458" class="small">Score, reward, UI update</text>
+
+  <g filter="url(#shadow)">
+    <rect x="80" y="590" width="700" height="280" rx="30" fill="url(#panel)" stroke="#2E4378"/>
+  </g>
+  <rect x="104" y="620" width="92" height="28" rx="14" fill="url(#blue)"/>
+  <text x="127" y="639" class="chip">DRAW</text>
+  <text x="104" y="686" class="section">Skill evaluation flow</text>
+  <text x="104" y="720" class="body">Single call with rubric questions. Output is limited to boolean and 0/1/2 JSON values.</text>
+  <rect x="104" y="752" width="172" height="74" rx="18" fill="#0F1730" stroke="#2C3D70"/>
+  <text x="126" y="785" class="label">Canvas image</text>
+  <text x="126" y="808" class="tiny">Compressed JPEG</text>
+  <rect x="322" y="752" width="172" height="74" rx="18" fill="#0F1730" stroke="#2C3D70"/>
+  <text x="352" y="785" class="label">Rubrics prompt</text>
+  <text x="347" y="808" class="tiny">Structured JSON schema</text>
+  <rect x="540" y="752" width="210" height="74" rx="18" fill="#0F1730" stroke="#2C3D70"/>
+  <text x="562" y="785" class="label">LLM JSON output</text>
+  <text x="562" y="808" class="tiny">Client computes final score</text>
+  <path d="M276 789H308" stroke="#7C9CFF" stroke-width="5" marker-end="url(#arrowBlue)"/>
+  <path d="M494 789H526" stroke="#7C9CFF" stroke-width="5" marker-end="url(#arrowBlue)"/>
+
+  <g filter="url(#shadow)">
+    <rect x="820" y="590" width="700" height="280" rx="30" fill="url(#panel)" stroke="#2E4378"/>
+  </g>
+  <rect x="844" y="620" width="96" height="28" rx="14" fill="url(#orange)"/>
+  <text x="866" y="639" class="chip">SOLVE</text>
+  <text x="844" y="686" class="section">Idea evaluation flow</text>
+  <text x="844" y="720" class="body">Analyze facts first, decide outcome on client, then generate one short NPC reaction.</text>
+  <rect x="844" y="752" width="156" height="74" rx="18" fill="#0F1730" stroke="#2C3D70"/>
+  <text x="875" y="785" class="label">ANALYZE</text>
+  <text x="867" y="808" class="tiny">is_drawing and facts</text>
+  <rect x="1032" y="752" width="156" height="74" rx="18" fill="#0F1730" stroke="#2C3D70"/>
+  <text x="1060" y="785" class="label">Client rule</text>
+  <text x="1050" y="808" class="tiny">Score, reward, story</text>
+  <rect x="1220" y="752" width="156" height="74" rx="18" fill="#0F1730" stroke="#2C3D70"/>
+  <text x="1256" y="785" class="label">CREATE</text>
+  <text x="1244" y="808" class="tiny">Text-only comment</text>
+  <rect x="1408" y="752" width="88" height="74" rx="18" fill="#13273C" stroke="#2AAE92"/>
+  <text x="1424" y="785" class="label">UX</text>
+  <text x="1420" y="808" class="tiny">NPC reply</text>
+  <path d="M1000 789H1018" stroke="#FFAF57" stroke-width="5" marker-end="url(#arrowOrange)"/>
+  <path d="M1188 789H1206" stroke="#FFAF57" stroke-width="5" marker-end="url(#arrowOrange)"/>
+  <path d="M1376 789H1394" stroke="#34D7B7" stroke-width="5" marker-end="url(#arrowGreen)"/>
+
+  <rect x="1032" y="848" width="344" height="18" rx="9" fill="#1A2D2A"/>
+  <rect x="1032" y="848" width="114" height="18" rx="9" fill="url(#green)"/>
+  <text x="844" y="858" class="tiny">Early Exit: if image is not a drawing, skip CREATE and save extra tokens</text>
+
+  <rect x="80" y="900" width="1440" height="44" rx="16" fill="#10182F" stroke="#24365F"/>
+  <text x="112" y="928" class="body">Key idea: the LLM does not own scoring. Vision AI extracts facts, while deterministic client code owns rules, rewards, and UX stability.</text>
+</svg>

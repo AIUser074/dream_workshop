@@ -15,7 +15,7 @@ const DialogueManager = {
         this.firstDialogueRemainingTime = 0;
     },
 
-    startDialogue(npcId, dialogueKey, onEndCallback) {
+    startDialogue(npcId, dialogueKey, extraOrCallback, maybeCallback) {
         const npc = this.npcManager.getNPC(npcId);
         if (!npc || !npc.data.dialogues[dialogueKey]) {
             console.error(`대화를 찾을 수 없습니다: ${npcId}, ${dialogueKey}`);
@@ -24,11 +24,32 @@ const DialogueManager = {
 
         if (this.isDialogueActive) return;
 
+        // 오버로드 파싱: 세 번째 인자가 배열이면 추가 대사, 함수면 콜백
+        let extraLines = [];
+        let onEndCallback = null;
+        if (Array.isArray(extraOrCallback)) {
+            extraLines = extraOrCallback;
+            if (typeof maybeCallback === 'function') onEndCallback = maybeCallback;
+        } else if (typeof extraOrCallback === 'function') {
+            onEndCallback = extraOrCallback;
+        }
+
         this.currentNpc = npc;
-        this.dialogueQueue = [...npc.data.dialogues[dialogueKey]];
+        const baseLines = [...npc.data.dialogues[dialogueKey]];
+        if (extraLines.length > 0) {
+            this.dialogueQueue = [...extraLines];
+        } else {
+            this.dialogueQueue = [...baseLines];
+        }
         this.currentDialogueIndex = 0;
         this.isDialogueActive = true;
         this.onDialogueEnd = onEndCallback;
+
+        // NPC 이름 설정
+        const speakerNameEl = this.currentNpc.dialogBox.querySelector('.dialog-speaker-name');
+        if (speakerNameEl) {
+            speakerNameEl.textContent = this.currentNpc.data.name;
+        }
         
         this.currentNpc.dialogBox.classList.add('active');
 

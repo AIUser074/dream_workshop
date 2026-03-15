@@ -1,11 +1,12 @@
 {
     "name": "Dream Workshop",
     "short_name": "Dream Workshop",
-    "description": "A game where you draw pictures for customers.",
-    "start_url": "/",
+    "description": "꿈의 그림 공방 - 손님들을 위한 그림을 그려주세요.",
+    "start_url": "./",
     "display": "standalone",
-    "background_color": "#ffffff",
-    "theme_color": "#ffffff",
+    "background_color": "#fdf6e3",
+    "theme_color": "#ffb3ba",
+    "orientation": "portrait",
     "icons": [
         {
             "src": "assets/images/game_logo.png",

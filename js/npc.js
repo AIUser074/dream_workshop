@@ -9,6 +9,9 @@ const NPCManager = {
         const data = npcData[npcId];
         if (!data) return;
 
+        // 현재 활성 손님을 전역 Game 상태에 기록
+        try { if (window.Game) window.Game.currentCustomer = npcId; } catch {}
+
         const viewport = document.getElementById('game-viewport');
         const npcWrapper = document.createElement('div');
         npcWrapper.id = `npc-${data.id}`;
@@ -24,6 +27,7 @@ const NPCManager = {
         dialogBox.className = 'dialog-box';
         // '다음' 화살표 요소를 추가합니다.
         dialogBox.innerHTML = `
+            <span class="dialog-speaker-name"></span>
             <p class="dialog-text"></p>
             <span class="next-arrow">▼</span>
         `;
@@ -60,8 +64,14 @@ const NPCManager = {
     showNPC(npcId) {
         const npc = this.npcs[npcId];
         if (npc && npc.element) {
-            npc.element.classList.add('animate-enter');
-            npc.dialogBox.classList.add('animate-enter');
+            // 토마스: 기존 팝업, 그 외: 좌측에서 슬라이드 인
+            if (npcId === 'thomas') {
+                npc.element.classList.add('animate-enter');
+                npc.dialogBox.classList.add('animate-enter');
+            } else {
+                npc.element.classList.add('enter-left', 'animate-enter');
+                npc.dialogBox.classList.add('animate-enter');
+            }
 
             const npcImage = npc.element.querySelector('img');
             npcImage.addEventListener('animationend', () => {
@@ -76,6 +86,45 @@ const NPCManager = {
             npc.element.classList.remove('animate-enter', 'npc-idle');
             npc.dialogBox.classList.remove('animate-enter');
             // 필요하다면 퇴장 애니메이션 추가
+        }
+    },
+
+    dismissNPC(npcId, onDone) {
+        const npc = this.npcs[npcId];
+        if (!npc || !npc.element) { if (onDone) onDone(); return; }
+
+        // 대사 상자 페이드아웃
+        if (npc.dialogBox) {
+            npc.dialogBox.classList.add('dialog-exit');
+        }
+
+        // 현재 유휴 애니메이션 제거 후 리플로우로 애니메이션 트리거 보장
+        npc.element.classList.remove('npc-idle');
+        void npc.element.offsetWidth;
+
+        // 토마스는 아래로, 그 외는 오른쪽으로 퇴장
+        if (npcId === 'thomas') {
+            npc.element.classList.add('exit-down');
+        } else {
+            npc.element.classList.add('exit-right');
+        }
+
+        const img = npc.element.querySelector('img');
+        const finalize = () => {
+            try {
+                if (npc.element) npc.element.remove();
+                if (npc.dialogBox) npc.dialogBox.remove();
+                delete this.npcs[npcId];
+            } catch {}
+            if (onDone) onDone();
+        };
+
+        let fallbackId = setTimeout(finalize, 800); // 애니메이션 미발화 대비 안전장치
+        if (img) {
+            img.addEventListener('animationend', () => { clearTimeout(fallbackId); finalize(); }, { once: true });
+        } else {
+            clearTimeout(fallbackId);
+            finalize();
         }
     },
 
